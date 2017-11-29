@@ -1,0 +1,19 @@
+{
+  "name": "mymall",
+  "version": "1.0.0",
+  "description": "比较流行的商城重制",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YexChen/MyMall.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YexChen/MyMall/issues"
+  },
+  "homepage": "https://github.com/YexChen/MyMall#readme"
+}
