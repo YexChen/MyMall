@@ -5,7 +5,7 @@
       <div class="sort-group">
         <span>排序：</span>
         <span class = "sort-group-active">默认</span>
-        <span>价格<img src="./../assets/images/箭头.svg" alt=""></span>
+        <span @click = "reversePriceFilter">价格<img src="./../assets/images/箭头.svg" alt=""></span>
       </div>
     </div>
     <!-- 这里是主文章部分，包括左边的价格，右边商品列表 -->
@@ -14,59 +14,25 @@
       <aside>
         <p>价格：</p>
         <ul>
-          <li class = "active">所有</li>
-          <li>0.00-100.00</li>
-          <li>100.00-500.00</li>
-          <li>500.00-1000.00</li>
-          <li>1000.00-500.00</li>
+          <li class = "active" @click = "changPriceFilter(10)">所有</li>
+          <li v-for = "(item,index) in priceFilter" @click = "changPriceFilter(index)">
+            {{priceFilter[index].startPrice}}-
+            {{priceFilter[index].endPrice}}
+          </li>
         </ul>
       </aside>
       <!-- 这里是主要放商品的地方 -->
-      <section>
-        <div class="goods-item-section">
+      <section v-infinite-scroll = "loadMore" infinite-scroll-disabled = "busy" infinite-scroll-distance="10">
+        <div class="goods-item-section" v-for = "(item,index) in goodsList">
           <div class="goods-item-image">
-            <img src="./../assets/images/zipai.jpg" alt="">
+            <img v-lazy = "'/static/'+item.productImage" alt="">
           </div>
           <div class="goods-item-bottom">
-            <p class = "goods-name">自拍杆</p>
-            <p class = "goods-price">￥39.00</p>
+            <p class = "goods-name">{{item.productName}}</p>
+            <p class = "goods-price">￥{{item.salePrice}}</p>
             <p class = "add-to-chart">加入购物车</p>
           </div>
         </div>
-        <div class="goods-item-section">
-          <div class="goods-item-image">
-            <img src="./../assets/images/zipai.jpg" alt="">
-          </div>
-          <div class="goods-item-bottom">
-            <p class = "goods-name">自拍杆</p>
-            <p class = "goods-price">￥39.00</p>
-            <p class = "add-to-chart">加入购物车</p>
-          </div>
-        </div>
-        <div class="goods-item-section">
-          <div class="goods-item-image">
-            <img src="./../assets/images/zipai.jpg" alt="">
-          </div>
-          <div class="goods-item-bottom">
-            <p class = "goods-name">自拍杆</p>
-            <p class = "goods-price">￥39.00</p>
-            <p class = "add-to-chart">加入购物车</p>
-          </div>
-        </div>
-        <div class="goods-item-section">
-          <div class="goods-item-image">
-            <img src="./../assets/images/zipai.jpg" alt="">
-          </div>
-          <div class="goods-item-bottom">
-            <p class = "goods-name">自拍杆</p>
-            <p class = "goods-price">￥39.00</p>
-            <p class = "add-to-chart">加入购物车</p>
-          </div>
-        </div>
-        <div class="goods-item-section"></div>
-        <div class="goods-item-section"></div>
-        <div class="goods-item-section"></div>
-        <div class="goods-item-section"></div>
       </section>
     </article>
   </main>
@@ -74,6 +40,74 @@
 
 <script>
 export default {
+  data () {
+    return {
+      priceFilter: [
+        {
+          startPrice: '0.00',
+          endPrice: '100.00'
+        },
+        {
+          startPrice: '100.00',
+          endPrice: '500.00'
+        },
+        {
+          startPrice: '500.00',
+          endPrice: '1000.00'
+        },
+        {
+          startPrice: '1000.00',
+          endPrice: '5000.00'
+        }
+      ],
+      goodsList: {
+
+      },
+      priceLevel: 0,
+      sort: -1,
+      busy: false,
+      page: 1
+
+    }
+  },
+  methods: {
+    getGoodsList (loadMore = false, page = 1, pageSize = 8, priceLevel = this.priceLevel, sort = this.sort) {
+      this.$http.get(`/goods/getList?page=${page}&pageSize=${pageSize}&priceLevel=${priceLevel}&sort=${sort}`).then((res) => {
+        console.log(loadMore, res.data.result, this.goodsList)
+        // if (res.data.result.count == 0) {
+        //   return
+        // }
+        if (loadMore) {
+          for (var i in res.data.result.list) {
+            this.goodsList.push(res.data.result.list[i])
+          }
+          this.busy = false
+        } else {
+          this.goodsList = res.data.result.list
+          this.page = 1
+        }
+      })
+    },
+    changPriceFilter (priceLevel) {
+      this.priceLevel = priceLevel
+      this.init()
+    },
+    loadMore () {
+      console.log('loading more')
+      this.busy = true
+      this.getGoodsList(true, ++this.page)
+    },
+    init () {
+      this.getGoodsList()
+    },
+    reversePriceFilter () {
+      this.sort = this.sort * (-1)
+      this.init()
+    }
+  },
+  mounted () {
+    this.getGoodsList()
+  }
 }
 </script>
 
