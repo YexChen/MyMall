@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import vueLazyLoad from 'vue-lazyload'
 import vueInfiniteScroll from 'vue-infinite-scroll'
+import store from '@/store/index'
 
 Vue.use(vueInfiniteScroll)
 
@@ -18,6 +19,7 @@ Vue.use(vueLazyLoad, {
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   template: '<App/>',
   components: { App }

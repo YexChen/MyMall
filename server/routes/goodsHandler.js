@@ -42,7 +42,7 @@ exports.getList = function(req,res,next){
         })
       }
       return res.json({
-        status : '0',
+        status : '1',
         msg : '',
         result : {
           count : doc.length,

@@ -4,7 +4,9 @@
     <nav>
       <img class = "top-logo" src="./../assets/images/logo.png">
       <div class="right-container">
-        <span class = "user-box">登陆</span>
+        <span class = "user-box" @click = "showLoginModel">{{hdUsername}}</span>
+        <span class = "user-box" @click = "showRegistModel">{{hdUsername === '登录'?'注册':''}}</span>
+        <span class = "user-box" @click = "clearLogin">{{hdUsername !== '登录'?"登出":""}}</span>
         <img class = "user-chart"src="./../assets/images/购物车空.svg" alt="">
       </div>
     </nav>
@@ -24,6 +26,27 @@
     },
     components: {
       navBread
+    },
+    methods: {
+      showLoginModel () {
+        this.$store.dispatch('showLoginModel')
+      },
+      showRegistModel () {
+        this.$store.dispatch('showRegistModel')
+      },
+      clearLogin () {
+        this.$http.get('/users/quitLogin', {}).then((res) => {
+          if (res.data.status === '0') {
+            this.$store.dispatch('updateUserInfo')
+            console.log('清除成功')
+          }
+        })
+      }
+    },
+    computed: {
+      hdUsername () {
+        return this.$store.getters.hdUsername
+      }
     }
   }
 </script>
@@ -40,7 +63,8 @@
         top : 50%
         margin-right: 45px
         transform : translateY(-50%)
-
+        .user-box
+          cursor : pointer
         .user-chart
           width: 25px
           height: 21px

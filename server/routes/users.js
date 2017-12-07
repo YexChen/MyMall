@@ -11,4 +11,10 @@ router.post('/regist', handler.regist)
 // 检测是否登录
 router.get('/checkLogin',handler.checkLogin)
 
+// 退出登录
+router.get('/quitLogin',handler.quitLogin)
+
+//加入购物车
+router.post('/addToCart',handler.addToCart)
+
 module.exports = router

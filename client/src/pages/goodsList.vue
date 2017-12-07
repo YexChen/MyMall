@@ -35,10 +35,33 @@
         </div>
       </section>
     </article>
+    <!-- 这里是登陆模态框 -->
+    <models v-if = "mdShow">
+      <div slot="input-area">
+        <input class = 'md-input' type="text" name="" value="" placeholder="请输入您的账号" v-model = "loginFormData.username">
+        <input class = 'md-input' type="password" name="" value="" placeholder="请输入您的密码" v-model = "loginFormData.password">
+      </div>
+      <div slot = "btn-group" class="button-group">
+        <button class = "md-btn" type="button" name="button"  @click = "modelConfirm">确认</button>
+        <button class = "md-btn" type="button" name="button" @click = "showLoginModel">取消</button>
+      </div>
+    </models>
+    <!-- 这里是注册模态框 -->
+    <models v-if = "registMdShow">
+      <div slot="input-area">
+        <input class = 'md-input' type="text" name="" value="" placeholder="请输入您的账号" v-model = "registFormData.username">
+        <input class = 'md-input' type="password" name="" value="" placeholder="请输入您的密码" v-model = "registFormData.password">
+      </div>
+      <div slot = "btn-group" class="button-group">
+        <button class = "md-btn" type="button" name="button"  @click = "registModelConfirm">确认</button>
+        <button class = "md-btn" type="button" name="button" @click = "showRegistModel">取消</button>
+      </div>
+    </models>
   </main>
 </template>
 
 <script>
+import Models from '@/components/models'
 export default {
   data () {
     return {
@@ -66,14 +89,26 @@ export default {
       priceLevel: 0,
       sort: -1,
       busy: false,
-      page: 1
+      page: 1,
+      loginFormData: {
+        username: '',
+        password: ''
+      },
+      registFormData: {
+        username: '',
+        password: ''
+      },
+      users: {
+        username: '',
+        userId: '',
+        loged: false
+      }
 
     }
   },
   methods: {
     getGoodsList (loadMore = false, page = 1, pageSize = 8, priceLevel = this.priceLevel, sort = this.sort) {
       this.$http.get(`/goods/getList?page=${page}&pageSize=${pageSize}&priceLevel=${priceLevel}&sort=${sort}`).then((res) => {
-        console.log(loadMore, res.data.result, this.goodsList)
         // if (res.data.result.count == 0) {
         //   return
         // }
@@ -93,20 +128,67 @@ export default {
       this.init()
     },
     loadMore () {
-      console.log('loading more')
       this.busy = true
       this.getGoodsList(true, ++this.page)
     },
     init () {
       this.getGoodsList()
+      this.updateUserInfo()
     },
     reversePriceFilter () {
       this.sort = this.sort * (-1)
       this.init()
+    },
+    showLoginModel () {
+      this.$store.dispatch('showLoginModel')
+    },
+    showRegistModel () {
+      this.$store.dispatch('showRegistModel')
+    },
+    modelConfirm () {
+      let _this = this
+      this.$http.post('/users/login', {
+        username: _this.loginFormData.username,
+        password: _this.loginFormData.password
+      }).then((res) => {
+        console.log(res)
+        if (res.data.status === '0') {
+          console.log('登入成功')
+          this.updateUserInfo()
+        }
+      })
+    },
+    registModelConfirm () {
+      this.$http.post('/users/regist', {
+        username: this.registFormData.username,
+        password: this.registFormData.password
+      }).then((res) => {
+        if (res.data.status === '0') {
+          console.log('注册成功')
+          this.showRegistModel()
+        } else {
+          console.log(res.data.msg)
+        }
+      })
+    },
+    updateUserInfo () {
+      this.$store.dispatch('updateUserInfo')
     }
   },
   mounted () {
     this.getGoodsList()
+    this.updateUserInfo()
+  },
+  components: {
+    Models
+  },
+  computed: {
+    mdShow () {
+      return this.$store.getters.showLogin
+    },
+    registMdShow () {
+      return this.$store.getters.showRegist
+    }
   }
 }
 </script>
